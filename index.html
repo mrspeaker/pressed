@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pressed</title>
+</head>
+<body>
+  <script type="application/javascript;version=1.7">
+
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let lastNode = null;
+
+    const addComp = () => {
+
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -24;
+      compressor.knee.value = 20;
+      compressor.ratio.value = 40;
+      compressor.attack.value = 0.1;
+      compressor.release.value = 0.6;
+
+      if (this.lastNode) {
+        this.lastNode.disconnect(ctx.destination);
+        this.lastNode.connect(compressor);
+      }
+
+      compressor.connect(ctx.destination);
+      this.lastNode = compressor;
+      return compressor;
+
+    }
+
+    const gain = ctx.createGain();
+    const gain2 = ctx.createGain();
+
+    const osc = ctx.createOscillator();
+    osc.type = "square";
+    osc.frequency.value = 80;
+    osc.start(0);
+    osc.connect(gain);
+
+    const osc2 = ctx.createOscillator();
+    osc2.type = "sine";
+    osc2.frequency.value = 240;
+    osc2.start(0);
+    osc2.connect(gain2);
+
+    const compressor = this.addComp();
+
+    gain.gain.value = 0.3;
+    gain2.gain.value = 0.8;
+    gain.connect(compressor);
+    gain2.connect(compressor);
+
+    setInterval(() => this.addComp(), 200);
+
+  </script>
+</body>
+</html>
